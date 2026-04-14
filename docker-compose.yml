@@ -16,7 +16,7 @@ x-airflow-common: &airflow-common
     POSTGRES_USER:     ${POSTGRES_USER:-postgres}
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     OLLAMA_BASE_URL:   http://ollama:11434
-    OLLAMA_MODEL:      ${OLLAMA_MODEL:-llama3}
+    OLLAMA_MODEL:      ${OLLAMA_MODEL:-qwen2:0.5b}
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -111,7 +111,7 @@ services:
       POSTGRES_USER:     ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       OLLAMA_BASE_URL:   http://ollama:11434
-      OLLAMA_MODEL:      ${OLLAMA_MODEL:-llama3}
+      OLLAMA_MODEL:      ${OLLAMA_MODEL:-qwen2:0.5b}
     ports:
       - "8000:8000"
     depends_on:
@@ -135,7 +135,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     # Pull the model on first start
-    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 10 && ollama pull ${OLLAMA_MODEL:-llama3} && wait"]
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 10 && ollama pull ${OLLAMA_MODEL:-qwen2:0.5b} && wait"]
     restart: unless-stopped
     # GPU support — uncomment if using NVIDIA GPU
     # deploy:
