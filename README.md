@@ -1,4 +1,4 @@
-# 🏥 Healthcare Analytics Pipeline
+# Healthcare Analytics Pipeline
 
 An end-to-end healthcare data engineering project that demonstrates a modern data stack for hospital readmission analysis, Medicare cost benchmarking, and patient risk stratification — with a privacy-first Text-to-SQL query interface powered by a locally-hosted LLM.
 
@@ -21,7 +21,7 @@ CSV Seed Data
 │  └──────────┘    │  analytics.*     │           │          │
 │                  │  (dbt marts)     │    ┌──────▼───────┐  │
 │                  └──────────────────┘    │    Ollama    │  │
-│                                          │  (llama3)    │  │
+│                                          │  (qwen2:1.5b)│  │
 │                                          │  local only  │  │
 │                                          └──────────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -35,7 +35,7 @@ CSV Seed Data
 | Storage | PostgreSQL 16 |
 | Transformation | dbt-core 1.8 + dbt-postgres |
 | API | FastAPI + asyncpg |
-| LLM Inference | Ollama (llama3 — local) |
+| LLM Inference | Ollama (qwen2:1.5b — local) |
 | NL-to-SQL | LangChain |
 | Containerisation | Docker Compose |
 
@@ -62,6 +62,8 @@ healthcare-analytics-pipeline/
 ├── dbt/
 │   ├── dbt_project.yml
 │   ├── profiles.yml
+│   ├── macros/
+│   │   └── generate_schema_name.sql     # Ensures marts land in analytics.* not analytics_analytics.*
 │   └── models/
 │       ├── staging/                     # stg_* views (clean raw data)
 │       ├── intermediate/                # int_* ephemeral models (features)
@@ -77,7 +79,8 @@ healthcare-analytics-pipeline/
 │   └── 01_init_healthcare.sql           # Healthcare schema, tables, and indexes
 ├── docker-compose.yml
 ├── Dockerfile.api
-├── requirements.txt
+├── requirements.txt                     # API dependencies (SQLAlchemy 2.x)
+├── requirements-airflow.txt             # Airflow DAG dependencies (no SQLAlchemy)
 └── .env.example
 ```
 
@@ -86,8 +89,8 @@ healthcare-analytics-pipeline/
 ## Quick Start
 
 ### Prerequisites
-- Docker Desktop ≥ 4.x
-- 8 GB RAM recommended (Ollama + Postgres + Airflow)
+- Docker Desktop >= 4.x with at least **6 GB RAM** allocated (Settings → Resources → Memory)
+- Ollama pulls `qwen2:1.5b` (~935 MB) on first start — ensure enough disk space
 
 ### 1. Clone & configure
 
@@ -104,32 +107,45 @@ docker compose up -d
 ```
 
 This will:
-- Start PostgreSQL and run `00_create_airflow_db.sh` (Airflow user/database) then `01_init_healthcare.sql` (healthcare schema)
-- Start Ollama and pull `llama3` (~4 GB download on first run)
+- Start PostgreSQL and run `00_create_airflow_db.sh` (creates the Airflow user/database) then `01_init_healthcare.sql` (healthcare schema and raw tables)
+- Start Ollama and pull `qwen2:1.5b` (~935 MB download on first run)
 - Initialise Airflow and create an admin user
 - Start the FastAPI service
 
-### 3. Trigger the pipeline
+### 3. Generate and load data
+
+The seed data must be generated and loaded before triggering the DAG or querying the API.
 
 ```bash
-# Option A — via Airflow UI (recommended)
-open http://localhost:8080
-# Login: admin / admin
-# Trigger: healthcare_analytics_pipeline
+# Generate 65k rows of synthetic CSV data
+docker exec healthcare_airflow_scheduler python /opt/airflow/scripts/generate_data.py
 
-# Option B — CLI
-docker exec healthcare_airflow_scheduler \
-  airflow dags trigger healthcare_analytics_pipeline
+# Load CSVs into raw.* PostgreSQL tables
+docker exec healthcare_airflow_scheduler python /opt/airflow/ingestion/load_data.py
 ```
 
-The DAG will:
-1. Validate or generate seed CSV files
-2. Load ~65k rows into `raw.*` PostgreSQL tables
-3. Run dbt staging → intermediate → mart models
-4. Execute dbt tests
-5. Generate dbt docs
+### 4. Build the dbt analytics tables
 
-### 4. Explore the API
+```bash
+docker exec healthcare_airflow_scheduler \
+  /home/airflow/.local/bin/dbt run \
+  --project-dir /opt/airflow/dbt \
+  --profiles-dir /opt/airflow/dbt \
+  --full-refresh
+```
+
+This builds three mart tables in the `analytics` schema:
+- `analytics.mart_readmission_analysis` — 607 rows
+- `analytics.mart_cost_analysis` — 708 rows
+- `analytics.mart_patient_summary` — 9,470 rows
+
+Verify:
+
+```bash
+docker exec healthcare_postgres psql -U postgres -d healthcare -c "\dt analytics.*"
+```
+
+### 5. Explore the API
 
 ```bash
 open http://localhost:8000/docs
@@ -148,15 +164,15 @@ Key endpoints:
 | POST | `/query` | Natural language → SQL |
 | GET | `/query/examples` | Sample questions |
 
-### 5. Try Text-to-SQL
+### 6. Try Text-to-SQL
 
 ```bash
-curl -X POST http://localhost:8000/query \
+curl -X POST http://localhost:8000/query/ \
   -H "Content-Type: application/json" \
-  -d '{"question": "Which hospitals in MA had a readmission rate above 20% in 2022?"}'
+  -d '{"question": "Which hospitals had the highest readmission rates?", "max_rows": 5}'
 ```
 
-All inference runs on `ollama` container — no data sent to OpenAI or any external API.
+All inference runs on the `ollama` container — no data is sent to OpenAI or any external API.
 
 ---
 
@@ -204,16 +220,18 @@ raw.* (sources)
 
 ## dbt Models
 
-Run dbt independently:
+Run dbt independently inside the Airflow scheduler container:
 
 ```bash
-cd dbt
-dbt deps
-dbt run --select staging
-dbt run --select intermediate
-dbt run --select marts
-dbt test
-dbt docs serve   # opens docs at http://localhost:8080
+docker exec healthcare_airflow_scheduler \
+  /home/airflow/.local/bin/dbt run \
+  --project-dir /opt/airflow/dbt \
+  --profiles-dir /opt/airflow/dbt
+
+docker exec healthcare_airflow_scheduler \
+  /home/airflow/.local/bin/dbt test \
+  --project-dir /opt/airflow/dbt \
+  --profiles-dir /opt/airflow/dbt
 ```
 
 ---
@@ -222,6 +240,15 @@ dbt docs serve   # opens docs at http://localhost:8080
 
 **Why local Ollama instead of OpenAI?**
 Healthcare data is sensitive. Running inference on-premise ensures no patient-related data is transmitted to third-party APIs, which is a prerequisite for HIPAA-aligned environments.
+
+**Why qwen2:1.5b?**
+It is the smallest model that produces reliably correct SQL for this schema. Larger models (phi3:mini at 3.8B) work better but require more memory. The model choice is controlled by `OLLAMA_MODEL` in `.env` — swap it without rebuilding any container.
+
+**Why split requirements.txt?**
+Airflow 2.9 bundles SQLAlchemy < 2.0 internally. The FastAPI service requires SQLAlchemy 2.x. Putting both in the same `requirements.txt` breaks Airflow's ORM. The split — `requirements.txt` for the API image and `requirements-airflow.txt` for the Airflow containers — keeps each environment clean.
+
+**Why the generate_schema_name macro?**
+dbt's default behaviour concatenates the target schema from `profiles.yml` with the custom `+schema` defined in `dbt_project.yml`, producing names like `analytics_analytics`. The macro in `dbt/macros/generate_schema_name.sql` overrides this so marts land directly in `analytics.*` as expected.
 
 **Why dbt for transformations?**
 dbt brings software engineering best practices (version control, testing, documentation) to SQL transformations. The staging → intermediate → mart layering keeps models modular and independently testable.
