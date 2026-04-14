@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: mart_readmission_analysis
+    description: >
+      Hospital-level 30-day readmission rates aggregated by year, quarter,
+      hospital type and risk tier. Primary table for the readmission dashboard.
+    columns:
+      - name: hospital_id
+        tests: [not_null]
+      - name: readmission_rate_pct
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+
+  - name: mart_cost_analysis
+    description: >
+      Hospital-DRG level Medicare cost data with national benchmarks,
+      payment gaps, and cost-efficiency flags.
+    columns:
+      - name: hospital_id
+        tests: [not_null]
+      - name: drg_code
+        tests: [not_null]
+
+  - name: mart_patient_summary
+    description: >
+      One row per patient with lifetime clinical metrics, readmission history,
+      and risk stratification. Used for cohort and utilisation analyses.
+    columns:
+      - name: patient_id
+        tests: [unique, not_null]
+      - name: total_admissions
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1

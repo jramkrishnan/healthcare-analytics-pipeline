@@ -1,0 +1,51 @@
+hospital_id,hospital_name,state,city,bed_count,hospital_type,teaching_flag
+H0001,NY General Hospital 1,NY,City_1,75,Teaching,True
+H0002,TX General Hospital 2,TX,City_2,192,Acute Care,True
+H0003,NC General Hospital 3,NC,City_3,482,Acute Care,True
+H0004,NY General Hospital 4,NY,City_4,273,Critical Access,True
+H0005,GA General Hospital 5,GA,City_5,253,Specialty,True
+H0006,OH General Hospital 6,OH,City_6,653,Teaching,True
+H0007,CA General Hospital 7,CA,City_7,764,Specialty,False
+H0008,FL General Hospital 8,FL,City_8,209,Critical Access,False
+H0009,NY General Hospital 9,NY,City_9,144,Specialty,True
+H0010,IL General Hospital 10,IL,City_10,402,Teaching,True
+H0011,OH General Hospital 11,OH,City_11,599,Acute Care,False
+H0012,NY General Hospital 12,NY,City_12,615,Teaching,False
+H0013,NC General Hospital 13,NC,City_13,246,Acute Care,True
+H0014,TX General Hospital 14,TX,City_14,346,Acute Care,True
+H0015,NY General Hospital 15,NY,City_15,439,Teaching,False
+H0016,IL General Hospital 16,IL,City_16,216,Teaching,False
+H0017,TX General Hospital 17,TX,City_17,736,Teaching,True
+H0018,NC General Hospital 18,NC,City_18,700,Critical Access,True
+H0019,CA General Hospital 19,CA,City_19,523,Specialty,False
+H0020,GA General Hospital 20,GA,City_20,274,Teaching,True
+H0021,TX General Hospital 21,TX,City_21,82,Teaching,False
+H0022,FL General Hospital 22,FL,City_22,117,Critical Access,False
+H0023,TX General Hospital 23,TX,City_23,721,Specialty,False
+H0024,OH General Hospital 24,OH,City_24,196,Teaching,True
+H0025,TX General Hospital 25,TX,City_25,624,Teaching,False
+H0026,NC General Hospital 26,NC,City_26,458,Teaching,True
+H0027,CA General Hospital 27,CA,City_27,571,Specialty,True
+H0028,MA General Hospital 28,MA,City_28,162,Critical Access,True
+H0029,PA General Hospital 29,PA,City_29,660,Acute Care,False
+H0030,PA General Hospital 30,PA,City_30,660,Specialty,False
+H0031,GA General Hospital 31,GA,City_31,61,Acute Care,False
+H0032,IL General Hospital 32,IL,City_32,164,Teaching,False
+H0033,CA General Hospital 33,CA,City_33,514,Acute Care,False
+H0034,GA General Hospital 34,GA,City_34,232,Acute Care,False
+H0035,GA General Hospital 35,GA,City_35,673,Critical Access,True
+H0036,IL General Hospital 36,IL,City_36,215,Acute Care,False
+H0037,OH General Hospital 37,OH,City_37,69,Acute Care,False
+H0038,FL General Hospital 38,FL,City_38,295,Acute Care,True
+H0039,NC General Hospital 39,NC,City_39,130,Acute Care,False
+H0040,NY General Hospital 40,NY,City_40,595,Critical Access,True
+H0041,OH General Hospital 41,OH,City_41,612,Critical Access,False
+H0042,GA General Hospital 42,GA,City_42,671,Specialty,True
+H0043,GA General Hospital 43,GA,City_43,797,Critical Access,False
+H0044,PA General Hospital 44,PA,City_44,737,Teaching,False
+H0045,GA General Hospital 45,GA,City_45,512,Acute Care,True
+H0046,TX General Hospital 46,TX,City_46,115,Teaching,True
+H0047,NC General Hospital 47,NC,City_47,617,Critical Access,True
+H0048,MA General Hospital 48,MA,City_48,122,Acute Care,True
+H0049,NY General Hospital 49,NY,City_49,82,Teaching,True
+H0050,GA General Hospital 50,GA,City_50,293,Teaching,False

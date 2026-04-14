@@ -1,0 +1,58 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: "Raw ingested healthcare data from CSV pipeline"
+    tables:
+      - name: hospitals
+        description: "Hospital master table"
+        columns:
+          - name: hospital_id
+            tests: [unique, not_null]
+          - name: state
+            tests: [not_null]
+
+      - name: patients
+        description: "Patient demographics"
+        columns:
+          - name: patient_id
+            tests: [unique, not_null]
+
+      - name: admissions
+        description: "Hospital admission records"
+        columns:
+          - name: admission_id
+            tests: [unique, not_null]
+          - name: patient_id
+            tests: [not_null]
+          - name: admit_date
+            tests: [not_null]
+
+      - name: diagnoses
+        description: "Secondary diagnosis codes per admission"
+        columns:
+          - name: diagnosis_id
+            tests: [unique, not_null]
+
+      - name: medicare_costs
+        description: "CMS Medicare cost data by DRG and hospital"
+        columns:
+          - name: cost_id
+            tests: [unique, not_null]
+
+models:
+  - name: stg_hospitals
+    description: "Cleaned hospital reference data"
+
+  - name: stg_patients
+    description: "Cleaned patient demographic data"
+
+  - name: stg_admissions
+    description: "Cleaned admission records with derived fields"
+
+  - name: stg_diagnoses
+    description: "Cleaned secondary diagnosis codes"
+
+  - name: stg_medicare_costs
+    description: "Cleaned Medicare cost data"

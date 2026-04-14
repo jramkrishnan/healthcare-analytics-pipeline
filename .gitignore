@@ -1,0 +1,35 @@
+# Env / secrets
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+.pytest_cache/
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+
+# Airflow
+airflow/logs/
+airflow/plugins/__pycache__/
+
+# Data (large files — committed only as seeds for demo purposes)
+# Uncomment the line below if you don't want CSVs in the repo
+# data/seed_data/*.csv
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.DS_Store
