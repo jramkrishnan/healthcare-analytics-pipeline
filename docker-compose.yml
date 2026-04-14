@@ -25,7 +25,7 @@ x-airflow-common: &airflow-common
     - ./data:/opt/airflow/data
     - ./ingestion:/opt/airflow/ingestion
     - ./scripts:/opt/airflow/scripts
-    - ./requirements.txt:/requirements.txt
+    - ./requirements-airflow.txt:/requirements.txt
   depends_on:
     postgres:
       condition: service_healthy

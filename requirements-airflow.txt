@@ -1,0 +1,20 @@
+# DAG-level dependencies only — do NOT add sqlalchemy, fastapi, or other API packages
+# as they conflict with Airflow's pinned sqlalchemy<2.0 requirement.
+
+# dbt
+dbt-core==1.8.2
+dbt-postgres==1.8.2
+
+# LangChain + Ollama (used in AI DAGs)
+langchain==0.2.1
+langchain-community==0.2.1
+langchain-core==0.2.3
+ollama==0.2.0
+
+# Data processing
+pandas==2.2.2
+numpy==1.26.4
+
+# Utilities
+python-dotenv==1.0.1
+httpx==0.27.0
