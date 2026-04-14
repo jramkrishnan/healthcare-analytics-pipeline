@@ -42,7 +42,8 @@ services:
       POSTGRES_DB:       ${POSTGRES_DB:-healthcare}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./scripts/00_create_airflow_db.sh:/docker-entrypoint-initdb.d/00_create_airflow_db.sh
+      - ./scripts/01_init_healthcare.sql:/docker-entrypoint-initdb.d/01_init_healthcare.sql
     ports:
       - "5432:5432"
     healthcheck:
