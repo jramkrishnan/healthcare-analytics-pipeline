@@ -73,7 +73,8 @@ healthcare-analytics-pipeline/
 ├── ingestion/load_data.py               # CSV → PostgreSQL raw loader
 ├── scripts/
 │   ├── generate_data.py                 # Synthetic data generator (65k rows)
-│   └── init_db.sql                      # PostgreSQL schema bootstrap
+│   ├── 00_create_airflow_db.sh          # Creates Airflow user and database
+│   └── 01_init_healthcare.sql           # Healthcare schema, tables, and indexes
 ├── docker-compose.yml
 ├── Dockerfile.api
 ├── requirements.txt
@@ -103,7 +104,7 @@ docker compose up -d
 ```
 
 This will:
-- Start PostgreSQL and apply `init_db.sql`
+- Start PostgreSQL and run `00_create_airflow_db.sh` (Airflow user/database) then `01_init_healthcare.sql` (healthcare schema)
 - Start Ollama and pull `llama3` (~4 GB download on first run)
 - Initialise Airflow and create an admin user
 - Start the FastAPI service
